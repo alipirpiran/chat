@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+
+<head>
+    <title>Socket.IO chat</title>
+
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <link rel="stylesheet" href="./public/bootstrap/css/bootstrap.min.css">
+    <script src="./public/bootstrap/js/bootstrap.min.js"></script>
+
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+    <script>
+        const BASE_URL = 'http://localhost:3000';
+        var socket;
+        socket = io(BASE_URL)
+
+        function send() {
+            const message = $('#message').val()
+            if (!message) return;
+            socket.emit('chat message', message)
+            $('#message').val('');
+        }
+        socket.on('chat message', function (msg) {
+            const { message, date } = msg;
+            const dateObj = new Date(date)
+            const finalMessage = `${dateObj.toTimeString().split(' ')[0]}  ${message}`
+            $('#messages').append($('<li>').text(finalMessage));
+        });
+        fetch(BASE_URL + '/messages').then(async res => {
+            if (res.status == 200) {
+                const messages = await res.json()
+                for (const msg of messages) {
+                    const { message, date } = msg;
+                    const dateObj = new Date(date)
+                    const finalMessage = `${dateObj.toTimeString().split(' ')[0]}  ${message}`
+                    $('#messages').append($('<li>').text(finalMessage));
+                }
+            }
+        })
+    </script>
+    <style>
+        body {
+            background-color: #353b48;
+        }
+
+        li {
+            color: aliceblue;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="">
+        <div class="">
+            <ul id="messages"></ul>
+        </div>
+        <div class="container col-md-8 col-sm-12 col-12 centered" style="position: absolute;
+        bottom: 10px; padding: 10px;">
+            <form action="">
+                <input id="message" type="text" class="form-control " placeholder="متن پیام" dir="rtl">
+                <button type="button" class="btn btn-primary mt" onclick="send()">ارسال</button>
+            </form>
+        </div>
+        <p class=""></p>
+    </div>
+</body>
+
+</html>
